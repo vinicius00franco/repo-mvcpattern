@@ -1,27 +1,20 @@
 <?php
 
-use Alura\Mvc\Repository\VideoRepository;
 
-$dbpath = __DIR__ . "/banco.sqlite";
-$pdo = new PDO("sqlite:$dbpath");
-
-$repository = new VideoRepository($pdo);
-$videoList = $repository->all();
-
-var_dump($videoList);
-
-var_dump($videoList['url']);
-var_dump($videoList['titulo']);
-
-require_once 'inicio-html.php'; ?>
+ require_once __DIR__ . '/inicio-html.php';
+ 
+ /**
+  * @var Alura\Mvc\Entity\Video[] $videoList
+  */
+ ?>
 
     <ul class="videos__container" alt="videos alura">
-        <?php foreach ($videoList as $video): ?>
-            <?php if (!str_starts_with($video->url,'http')) {
-                $video->url = "";
-            }?>    
-            <li class="videos__item">
-                <iframe width="100%" height="72%" src="<?= $video->url; ?>"
+    <?php foreach ($videoList as $video): ?>
+        <?php if (!str_starts_with($video->url,'http')) {
+            $video->url = "";
+        }?>    
+        <li class="videos__item">
+            <iframe width="100%" height="72%" src="<?= $video->url; ?>"
                     title="YouTube video player" frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen></iframe>
@@ -34,7 +27,7 @@ require_once 'inicio-html.php'; ?>
                     </div>
                 </div>
             </li>
-                
+                        
         <?php endforeach; ?>
     </ul>
-<?php require_once 'fim-html.php'; ?>
+<?php require_once __DIR__ . "/fim-html.php";            

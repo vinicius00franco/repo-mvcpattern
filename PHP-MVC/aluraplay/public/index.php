@@ -1,8 +1,8 @@
 <?php
 
-
+use Alura\Mvc\Controller\Error404Controller;
 use Alura\Mvc\Repository\VideoRepository;
-use Alura\Mvc\Controller\VideoListController;
+use Alura\Mvc\Repository\UserRepository;
 
 require_once __DIR__ .  '/../vendor/autoload.php' ;
 
@@ -10,39 +10,64 @@ require_once __DIR__ .  '/../vendor/autoload.php' ;
 $dbpath = __DIR__ . "/../banco.sqlite";
 $pdo = new PDO("sqlite:$dbpath");
 
-if ($pdo === true){
-    echo "conectei";
-}
+/**
+ * @var ?Alura\Mvc\Controller\Controller $controller
+ */
 
 $videoRepository = new VideoRepository($pdo);
-var_dump($videoRepository);
+$userRepository = new UserRepository($pdo);
 
-if (!array_key_exists('PATH_INFO', $_SERVER) || ($_SERVER['PATH_INFO'] === '/')){
-    $controller = new VideoListController($videoRepository);
-    $controller->processaRequisicao();
- 
-} elseif ($_SERVER['PATH_INFO'] === '/novo-video'){
+$routes = require_once __DIR__ . "/../config/routes.php";
 
-    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        require_once __DIR__ . '/../formulario.php';
+// vou receber o path info ou nulo 
+$pathInfo = $_SERVER['PATH_INFO'] ?? "/";
+// receber o request
 
-    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST'){
-        require_once __DIR__ . '/../novo-video.php';
-    };
-} elseif ($_SERVER['PATH_INFO'] === '/editar-video'){
-    
-    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+$httpMethod = $_SERVER['REQUEST_METHOD'];
+// array da minhas rotas
 
-        require_once __DIR__ . '/../formulario.php';
 
-    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST'){
-        require_once __DIR__ . '/../editar-video.php';
-    };
-} elseif ($_SERVER['PATH_INFO'] === '/remover-video'){
-    require_once __DIR__ . '/../remover-video.php';
+session_start();
+//var_dump(!array_key_exists('logado', $_SESSION));
+//exit();
 
-} else {
-    http_response_code(404);
+
+
+
+
+$isLoginRoute = $pathInfo === '/login';
+//loop de redirecionamento do login
+if (!array_key_exists('name', $_SESSION) && !$isLoginRoute){
+    header('Location:/login');
+    return;
 }
 
 
+var_dump($_SERVER['PATH_INFO']);
+
+var_dump($_SERVER['REQUEST_METHOD']);
+
+
+var_dump($_SESSION);
+exit();
+
+
+$key = "$httpMethod|$pathInfo";
+
+if (array_key_exists($key, $routes)){
+    $controllerClass = $routes[$key];
+    // ao indicar a key requisitada, é o passa o classe (valor) correspondente a ela
+    //var_dump($controllerClass);
+    if ($pathInfo !=="/login"){
+        $controller = new $controllerClass($videoRepository);
+    }else {
+        $controller = new $controllerClass($userRepository);
+    }
+} else {
+    $controller = new Error404Controller();
+}
+
+/**
+ * @var Controller $controller
+ */
+$controller->processaRequisicao();

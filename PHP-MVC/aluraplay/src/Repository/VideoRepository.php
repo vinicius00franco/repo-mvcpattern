@@ -5,7 +5,7 @@ namespace Alura\Mvc\Repository;
 use Alura\Mvc\Entity\Video;
 use PDO;
 
-class VideoRepository
+class VideoRepository extends Repository
 {
 
     public function __construct
@@ -72,7 +72,7 @@ class VideoRepository
         );
    }
 
-   public function find($id)
+   public function find($id): Video
    {
        $statement = $this->pdo->prepare('SELECT  * FROM videos WHERE id = :id;');
        $statement->bindValue(':id',$id,PDO::PARAM_INT);
